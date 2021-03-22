@@ -1,16 +1,23 @@
-div#board table {
-    background: black;
+html {
     text-align: center;
 }
 
+div#board table {
+    margin: 0 auto;
+    background: black;
+}
+
 div#board td {
-    background: green;
-    color: green;
+    background: #008800;
     height: 2em;
     width: 2em;
 }
 
-div#board td::before {
+div#board .white::before {
+    content: "●";
+}
+
+div#board .black::before {
     content: "●";
 }
 
