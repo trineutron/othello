@@ -43,7 +43,7 @@ function opponent() {
     }
 }
 
-const human = { 'black': true, 'white': false };
+const human = { 'black': false, 'white': true };
 
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
@@ -172,6 +172,10 @@ function evalBoard(newBoard) {
                         if (newBoard[next] !== 'wall' &&
                             !(newBoard[next] === 'empty' && newBoard[next - d] === 'wall')) {
                             value -= 8;
+                            // ウイング
+                            if (newBoard[next] === 'empty' && newBoard[next - d] === 'empty' && newBoard[next - 2 * d] === 'wall') {
+                                value += 4;
+                            }
                         }
                     }
                 }
