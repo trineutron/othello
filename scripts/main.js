@@ -86,17 +86,45 @@ function makeMove() {
     }
     if (movable) {
         flip(idx);
+        document.getElementById('countBlack').textContent = board.filter(function (x) {
+            return x === 'black';
+        }).length;
+        document.getElementById('countWhite').textContent = board.filter(function (x) {
+            return x === 'white';
+        }).length;
         color = opponent(color);
         if (existsMovable()) {
-            document.querySelector('p').textContent = color;
+            document.getElementById('turn').textContent = color;
         } else {
             color = opponent(color);
             if (existsMovable()) {
                 alert(opponent(color) + ' pass');
             } else {
-                document.querySelector('p').textContent = '終局';
+                document.getElementById('turn').textContent = '終局';
                 alert('終局');
             }
         }
     }
+}
+
+function listMovable() {
+    let movable = []
+    for (let i = 0; i < board.length; i++) {
+        const cellState = board[i];
+        if (cellState === 'empty') {
+            for (const d of directions) {
+                let next = i + d;
+                while (board[next] === opponent(color)) {
+                    next += d;
+                }
+                if (board[next] === color) {
+                    next -= d;
+                    if (board[next] === opponent(color)) {
+                        movable.push(i);
+                    }
+                }
+            }
+        }
+    }
+    return movable;
 }
