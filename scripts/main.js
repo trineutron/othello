@@ -169,7 +169,8 @@ function evalBoard(newBoard) {
                             next -= d;
                         }
                         // 隅に繋がっておらず山でもない
-                        if (newBoard[next] !== 'wall' && newBoard[next - d] !== 'wall') {
+                        if (newBoard[next] !== 'wall' ||
+                            newBoard[next] === 'empty' && newBoard[next - d] !== 'wall') {
                             value -= 8;
                         }
                     }
