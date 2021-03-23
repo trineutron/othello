@@ -155,23 +155,21 @@ function evalBoard(newBoard) {
     for (let i = 0; i < newBoard.length; i++) {
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {
-            value = 10000;
+            value = 8;
         }
-        if (i === 20 || i === 25 || i === 65 || i === 70) {
-            value = -1000;
-        }
-        if (i === 11 || i === 16 || i === 19 || i === 26
-            || i === 64 || i === 71 || i === 74 || i === 79) {
-            value = -100;
+        for (const d of directions) {
+            if (newBoard[i + d] === 'empty' && newBoard[i - d] !== 'wall') {
+                value--;
+                if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
+                    value -= 8;
+                    if (d === -10 || d === -8 || d === 8 || d === 10) {
+                        value -= 2;
+                    }
+                }
+            }
         }
         res += value * v[newBoard[i]];
     }
-    const prevColor = color;
-    color = 'black';
-    res += listMovable(newBoard).length;
-    color = 'white';
-    res -= listMovable(newBoard).length;
-    color = prevColor;
     return res;
 }
 
