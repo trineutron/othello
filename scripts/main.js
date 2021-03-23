@@ -47,19 +47,19 @@ const human = { 'black': true, 'white': false };
 
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
-function listMovable() {
+function listMovable(newBoard) {
     let movable = []
-    for (let i = 0; i < board.length; i++) {
-        const cellState = board[i];
+    for (let i = 0; i < newBoard.length; i++) {
+        const cellState = newBoard[i];
         if (cellState === 'empty') {
             for (const d of directions) {
                 let next = i + d;
-                while (board[next] === opponent(color)) {
+                while (newBoard[next] === opponent(color)) {
                     next += d;
                 }
-                if (board[next] === color) {
+                if (newBoard[next] === color) {
                     next -= d;
-                    if (board[next] === opponent(color)) {
+                    if (newBoard[next] === opponent(color)) {
                         movable.push(i);
                         break;
                     }
@@ -70,8 +70,8 @@ function listMovable() {
     return movable;
 }
 
-function existsMovable() {
-    return listMovable().length !== 0;
+function existsMovable(newBoard) {
+    return listMovable(newBoard).length !== 0;
 }
 
 function makeMove() {
@@ -106,11 +106,11 @@ function move(idx) {
             return x === 'white';
         }).length;
         color = opponent(color);
-        if (existsMovable()) {
+        if (existsMovable(board)) {
             document.getElementById('turn').textContent = color;
         } else {
             color = opponent(color);
-            if (existsMovable()) {
+            if (existsMovable(board)) {
                 alert(opponent(color) + ' pass');
             } else {
                 document.getElementById('turn').textContent = '終局';
@@ -155,22 +155,28 @@ function evalBoard(newBoard) {
     for (let i = 0; i < newBoard.length; i++) {
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {
-            value = 100;
+            value = 10000;
         }
         if (i === 20 || i === 25 || i === 65 || i === 70) {
-            value = -10;
+            value = -1000;
         }
         if (i === 11 || i === 16 || i === 19 || i === 26
             || i === 64 || i === 71 || i === 74 || i === 79) {
-            value = -1;
+            value = -100;
         }
         res += value * v[newBoard[i]];
     }
+    const prevColor = color;
+    color = 'black';
+    res += listMovable(newBoard).length;
+    color = 'white';
+    res -= listMovable(newBoard).length;
+    color = prevColor;
     return res;
 }
 
 function moveByAI() {
-    let movable = listMovable(), res = null, maxScore = -Infinity;
+    let movable = listMovable(board), res = null, maxScore = -Infinity;
     for (const idx of movable) {
         let eval = evalBoard(afterMove(idx));
         if (color === 'white') {
