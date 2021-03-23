@@ -81,6 +81,7 @@ function makeMove() {
 }
 
 function move(idx) {
+    if (board[idx] !== 'empty') return;
     let movable = false;
     for (const d of directions) {
         let next = idx + d;
