@@ -43,7 +43,7 @@ function opponent() {
     }
 }
 
-const human = { 'black': false, 'white': true };
+const human = { 'black': true, 'white': false };
 
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
