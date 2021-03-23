@@ -43,9 +43,12 @@ function opponent() {
     }
 }
 
+const human = { 'black': true, 'white': false };
+
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
-function existsMovable() {
+function listMovable() {
+    let movable = []
     for (let i = 0; i < board.length; i++) {
         const cellState = board[i];
         if (cellState === 'empty') {
@@ -57,18 +60,27 @@ function existsMovable() {
                 if (board[next] === color) {
                     next -= d;
                     if (board[next] === opponent(color)) {
-                        return true;
+                        movable.push(i);
+                        break;
                     }
                 }
             }
         }
     }
-    return false;
+    return movable;
+}
+
+function existsMovable() {
+    return listMovable().length !== 0;
 }
 
 function makeMove() {
     const idx = Number(this.getAttribute('id'));
-    if (board[idx] !== 'empty') return;
+    if (!human[color] || board[idx] !== 'empty') return;
+    move(idx);
+}
+
+function move(idx) {
     let movable = false;
     for (const d of directions) {
         let next = idx + d;
@@ -104,27 +116,16 @@ function makeMove() {
                 alert('終局');
             }
         }
+        if (!human[color]) {
+            moveByAI();
+        }
     }
 }
 
-function listMovable() {
-    let movable = []
-    for (let i = 0; i < board.length; i++) {
-        const cellState = board[i];
-        if (cellState === 'empty') {
-            for (const d of directions) {
-                let next = i + d;
-                while (board[next] === opponent(color)) {
-                    next += d;
-                }
-                if (board[next] === color) {
-                    next -= d;
-                    if (board[next] === opponent(color)) {
-                        movable.push(i);
-                    }
-                }
-            }
-        }
-    }
-    return movable;
+function moveByAI() {
+    move(listMovable()[0]);
+}
+
+if (!human['black']) {
+    moveByAI();
 }
