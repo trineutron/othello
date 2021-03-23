@@ -152,7 +152,18 @@ function afterMove(idx) {
 function evalBoard(newBoard) {
     let res = 0, v = { 'black': 1, 'white': -1, 'empty': 0, 'wall': 0 };
     for (let i = 0; i < newBoard.length; i++) {
-        res += v[newBoard[i]];
+        let value = 0;
+        if (i === 10 || i === 17 || i === 73 || i === 80) {
+            value = 100;
+        }
+        if (i === 20 || i === 25 || i === 65 || i === 70) {
+            value = -10;
+        }
+        if (i === 11 || i === 16 || i === 19 || i === 26
+            || i === 64 || i === 71 || i === 74 || i === 79) {
+            value = -1;
+        }
+        res += value * v[newBoard[i]];
     }
     return res;
 }
