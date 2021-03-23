@@ -1,5 +1,9 @@
-html {
+body {
     text-align: center;
+}
+
+p {
+    font-size: 2rem;
 }
 
 div#board table {
@@ -9,8 +13,10 @@ div#board table {
 
 div#board td {
     background: #008800;
-    height: 2em;
-    width: 2em;
+    height: 3rem;
+    width: 3rem;
+    font-size: 2rem;
+    font-family: monospace;
 }
 
 div#board .white::before {

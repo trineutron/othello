@@ -45,11 +45,32 @@ function opponent() {
 
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
+function existsMovable() {
+    for (let i = 0; i < board.length; i++) {
+        const cellState = board[i];
+        if (cellState === 'empty') {
+            for (const d of directions) {
+                let next = i + d;
+                while (board[next] === opponent(color)) {
+                    next += d;
+                }
+                if (board[next] === color) {
+                    next -= d;
+                    if (board[next] === opponent(color)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function makeMove() {
     const idx = Number(this.getAttribute('id'));
     if (board[idx] !== 'empty') return;
     let movable = false;
-    directions.forEach(d => {
+    for (const d of directions) {
         let next = idx + d;
         while (board[next] === opponent(color)) {
             next += d;
@@ -62,9 +83,20 @@ function makeMove() {
                 next -= d;
             }
         }
-    });
+    }
     if (movable) {
         flip(idx);
         color = opponent(color);
+        if (existsMovable()) {
+            document.querySelector('p').textContent = color;
+        } else {
+            color = opponent(color);
+            if (existsMovable()) {
+                alert(opponent(color) + ' pass');
+            } else {
+                document.querySelector('p').textContent = '終局';
+                alert('終局');
+            }
+        }
     }
 }
