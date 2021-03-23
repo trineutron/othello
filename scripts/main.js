@@ -161,9 +161,16 @@ function evalBoard(newBoard) {
             if (newBoard[i + d] === 'empty' && newBoard[i - d] !== 'wall') {
                 value--;
                 if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
-                    value -= 8;
-                    if (d === -10 || d === -8 || d === 8 || d === 10) {
-                        value -= 4;
+                    if (d === -10 || d === -8 || d === 8 || d === 10) {  // X
+                        value -= 12;
+                    } else {  // C
+                        let next = i - d;
+                        while (newBoard[next] === newBoard[i]) {
+                            next -= d;
+                        }
+                        if (newBoard[next] !== 'wall') {
+                            value -= 8;
+                        }
                     }
                 }
             }
