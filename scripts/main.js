@@ -117,15 +117,57 @@ function move(idx) {
             }
         }
         if (!human[color]) {
-            moveByAI();
+            move(moveByAI());
         }
     }
 }
 
-function moveByAI() {
-    move(listMovable()[0]);
+if (!human['black']) {
+    move(moveByAI());
 }
 
-if (!human['black']) {
-    moveByAI();
+function afterMove(idx) {
+    let newBoard = board.slice(), movable = false;
+    for (const d of directions) {
+        let next = idx + d;
+        while (newBoard[next] === opponent(color)) {
+            next += d;
+        }
+        if (newBoard[next] === color) {
+            next -= d;
+            while (newBoard[next] === opponent(color)) {
+                newBoard[next] = color;
+                movable = true;
+                next -= d;
+            }
+        }
+    }
+    if (movable) {
+        newBoard[idx] = color;
+    }
+    return newBoard;
+}
+
+// 黒番から見た評価値
+function evalBoard(newBoard) {
+    let res = 0, v = { 'black': 1, 'white': -1, 'empty': 0, 'wall': 0 };
+    for (let i = 0; i < newBoard.length; i++) {
+        res += v[newBoard[i]];
+    }
+    return res;
+}
+
+function moveByAI() {
+    let movable = listMovable(), res = null, maxScore = -Infinity;
+    for (const idx of movable) {
+        let eval = evalBoard(afterMove(idx));
+        if (color === 'white') {
+            eval *= -1;
+        }
+        if (eval > maxScore) {
+            res = idx;
+            maxScore = eval;
+        }
+    }
+    return res;
 }
