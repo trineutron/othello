@@ -155,7 +155,7 @@ function evalBoard(newBoard) {
     for (let i = 0; i < newBoard.length; i++) {
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {
-            value = 8;
+            value = 16;
         }
         for (const d of directions) {
             if (newBoard[i + d] === 'empty' && newBoard[i - d] !== 'wall') {
@@ -163,7 +163,7 @@ function evalBoard(newBoard) {
                 if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
                     value -= 8;
                     if (d === -10 || d === -8 || d === 8 || d === 10) {
-                        value -= 2;
+                        value -= 4;
                     }
                 }
             }
