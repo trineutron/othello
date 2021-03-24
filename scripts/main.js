@@ -19,23 +19,31 @@ for (let i = 0; i < 91; i++) {
         board.push('empty');
     }
 }
+board.push('black');
 
-let color;
+function getColor(newBoard) {
+    return newBoard[91];
+}
+
+function changeColor(newBoard) {
+    newBoard[91] = opponent(newBoard[91]);
+}
 
 function flip(idx) {
+    const color = getColor(board);
     board[idx] = color;
     document.getElementById(idx).setAttribute('class', color);
 }
 
-color = 'white'
+changeColor(board);
 flip(40);
 flip(50);
 
-color = 'black'
+changeColor(board);
 flip(41);
 flip(49);
 
-function opponent() {
+function opponent(color) {
     if (color === 'black') {
         return 'white';
     } else {
@@ -48,7 +56,7 @@ const human = { 'black': true, 'white': false };
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
 function listMovable(newBoard) {
-    let movable = []
+    let movable = [], color = getColor(newBoard);
     for (let i = 0; i < newBoard.length; i++) {
         const cellState = newBoard[i];
         if (cellState === 'empty') {
@@ -76,11 +84,12 @@ function existsMovable(newBoard) {
 
 function makeMove() {
     const idx = Number(this.getAttribute('id'));
-    if (!human[color] || board[idx] !== 'empty') return;
+    if (!human[getColor(board)] || board[idx] !== 'empty') return;
     move(idx);
 }
 
 function move(idx) {
+    const color = getColor(board);
     if (board[idx] !== 'empty') return;
     let movable = false;
     for (const d of directions) {
@@ -99,25 +108,26 @@ function move(idx) {
     }
     if (movable) {
         flip(idx);
-        document.getElementById('countBlack').textContent = board.filter(function (x) {
+        document.getElementById('countBlack').textContent = board.slice(0, 91).filter(function (x) {
             return x === 'black';
         }).length;
-        document.getElementById('countWhite').textContent = board.filter(function (x) {
+        document.getElementById('countWhite').textContent = board.slice(0, 91).filter(function (x) {
             return x === 'white';
         }).length;
-        color = opponent(color);
+        changeColor(board);
+        let color = getColor(board);
         if (existsMovable(board)) {
             document.getElementById('turn').textContent = color;
         } else {
-            color = opponent(color);
+            changeColor(board);
             if (existsMovable(board)) {
-                alert(opponent(color) + ' pass');
+                alert(color + ' pass');
             } else {
                 document.getElementById('turn').textContent = '終局';
                 alert('終局');
             }
         }
-        if (!human[color]) {
+        if (!human[getColor(board)]) {
             move(moveByAI());
         }
     }
@@ -128,7 +138,7 @@ if (!human['black']) {
 }
 
 function afterMove(oldBoard, idx) {
-    let newBoard = oldBoard.slice(), movable = false;
+    let newBoard = oldBoard.slice(), movable = false, color = getColor(oldBoard);
     for (const d of directions) {
         let next = idx + d;
         while (newBoard[next] === opponent(color)) {
@@ -145,6 +155,10 @@ function afterMove(oldBoard, idx) {
     }
     if (movable) {
         newBoard[idx] = color;
+        changeColor(newBoard);
+        if (!existsMovable(newBoard)) {
+            changeColor(newBoard);
+        }
     }
     return newBoard;
 }
@@ -196,13 +210,25 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI() {
-    let movable = listMovable(board), res = null, maxScore = -Infinity;
+    let movable = listMovable(board), res = null, maxScore = -Infinity, color = getColor(board);
     for (const idx of movable) {
-        let eval = evalBoard(afterMove(board, idx));
-        if (color === 'white') {
+        let newBoard = afterMove(board, idx), newMax = -Infinity;
+        let newMovable = listMovable(newBoard);
+        let newColor = getColor(newBoard);
+        for (const newIdx of newMovable) {
+            let newEval = evalBoard(afterMove(newBoard, newIdx));
+            if (newColor === 'white') {
+                newEval *= -1;
+            }
+            if (newEval > newMax) {
+                newMax = newEval;
+            }
+        }
+        let eval = newMax;
+        if (color !== newColor) {
             eval *= -1;
         }
-        if (eval > maxScore) {
+        if (maxScore === -Infinity || eval > maxScore) {
             res = idx;
             maxScore = eval;
         }
