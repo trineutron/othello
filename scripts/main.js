@@ -127,8 +127,8 @@ if (!human['black']) {
     move(moveByAI());
 }
 
-function afterMove(idx) {
-    let newBoard = board.slice(), movable = false;
+function afterMove(oldBoard, idx) {
+    let newBoard = oldBoard.slice(), movable = false;
     for (const d of directions) {
         let next = idx + d;
         while (newBoard[next] === opponent(color)) {
@@ -154,8 +154,17 @@ function evalBoard(newBoard) {
     let res = 0, v = { 'black': 1, 'white': -1, 'empty': 0, 'wall': 0 };
     for (let i = 0; i < newBoard.length; i++) {
         let value = 0;
-        if (i === 10 || i === 17 || i === 73 || i === 80) {
+        if (i === 10 || i === 17 || i === 73 || i === 80) {  // 隅
             value = 16;
+            for (const d of [-9, -1, 1, 9]) {
+                let next = i + d;
+                while (newBoard[next] === newBoard[i]) {
+                    next += d;
+                }
+                if (newBoard[next] === 'empty') {
+                    value++;
+                }
+            }
         }
         for (const d of directions) {
             if (newBoard[i + d] === 'empty' && newBoard[i - d] !== 'wall') {
@@ -189,7 +198,7 @@ function evalBoard(newBoard) {
 function moveByAI() {
     let movable = listMovable(board), res = null, maxScore = -Infinity;
     for (const idx of movable) {
-        let eval = evalBoard(afterMove(idx));
+        let eval = evalBoard(afterMove(board, idx));
         if (color === 'white') {
             eval *= -1;
         }
