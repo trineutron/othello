@@ -275,7 +275,7 @@ function moveByAI() {
     return res[Math.floor(Math.random() * res.length)];
 }
 
-const human = { 'black': false, 'white': true };
+const human = { 'black': true, 'white': false };
 
 if (!human['black']) {
     move(moveByAI());
