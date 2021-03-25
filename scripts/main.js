@@ -154,7 +154,7 @@ function move(idx) {
             }
         }
         if (!human[getColor(board)]) {
-            move(moveByAI());
+            move(moveByAI(defaultDepth));
         }
     }
 }
@@ -240,31 +240,12 @@ function evalBoard(newBoard) {
     return res;
 }
 
-function moveByAI() {
-    let movable = listMovable(board), res = [], maxScore = -Infinity, color = getColor(board);
+function moveByAI(depth) {
+    let movable = listMovable(board), res = [], maxScore = -Infinity;
+    const color = getColor(board);
     for (const idx of movable) {
-        let newBoard = afterMove(board, idx), newMax = -Infinity;
-        let newMovable = listMovable(newBoard);
-        let newColor = getColor(newBoard);
-        for (const newIdx of newMovable) {
-            let newEval = evalBoard(afterMove(newBoard, newIdx));
-            if (newColor === 'white') {
-                newEval *= -1;
-            }
-            if (newEval > newMax) {
-                newMax = newEval;
-            }
-        }
-        let eval = newMax;
-        if (color !== newColor) {
-            eval *= -1;
-        }
-        if (newMovable === []) {
-            eval = evalBoard(newBoard);
-            if (color === 'white') {
-                eval *= -1;
-            }
-        }
+        let newBoard = afterMove(board, idx);
+        const eval = search(newBoard, depth - 1, color);
         if (eval > maxScore) {
             res = [idx];
             maxScore = eval;
@@ -275,8 +256,34 @@ function moveByAI() {
     return res[Math.floor(Math.random() * res.length)];
 }
 
+// 前の着手から見た評価値
+function search(currentBoard, depth, prevColor) {
+    let eval = -Infinity;
+    const color = getColor(currentBoard);
+    const movable = listMovable(currentBoard);
+    if (depth === 0 || color === 'end') {
+        eval = evalBoard(currentBoard);
+        if (prevColor === 'white') {
+            eval *= -1;
+        }
+        return eval;
+    }
+    for (const idx of movable) {
+        const newBoard = afterMove(currentBoard, idx);
+        let newEval = search(newBoard, depth - 1, color);
+        if (newEval > eval) {
+            eval = newEval;
+        }
+    }
+    if (prevColor !== color) {
+        eval *= -1;
+    }
+    return eval;
+}
+
+const defaultDepth = 4;
 const human = { 'black': true, 'white': false };
 
 if (!human['black']) {
-    move(moveByAI());
+    move(moveByAI(defaultDepth));
 }
