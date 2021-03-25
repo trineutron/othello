@@ -1,3 +1,4 @@
+// オセロ盤の表示
 const boardShow = document.createElement('table');
 document.getElementById('board').appendChild(boardShow);
 for (let i = 0; i < 8; i++) {
@@ -11,38 +12,43 @@ for (let i = 0; i < 8; i++) {
     }
 }
 
+// 初期盤面の作成
 let board = [];
 for (let i = 0; i < 91; i++) {
     if (i < 10 || 80 < i || i % 9 === 0) {
         board.push('wall');
+    } else if (i === 40 || i === 50) {
+        board.push('white');
+        document.getElementById(i).setAttribute('class', 'white');
+    } else if (i === 41 || i === 49) {
+        board.push('black');
+        document.getElementById(i).setAttribute('class', 'black');
     } else {
         board.push('empty');
     }
 }
 board.push('black');
 
+const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
+
+// 手番の色を取得
 function getColor(newBoard) {
     return newBoard[91];
 }
 
+// 相手番
 function changeColor(newBoard) {
     newBoard[91] = opponent(newBoard[91]);
 }
 
+// 表示を含めて石を返す
 function flip(idx) {
     const color = getColor(board);
     board[idx] = color;
     document.getElementById(idx).setAttribute('class', color);
 }
 
-changeColor(board);
-flip(40);
-flip(50);
-
-changeColor(board);
-flip(41);
-flip(49);
-
+// 相手の色
 function opponent(color) {
     if (color === 'black') {
         return 'white';
@@ -51,13 +57,11 @@ function opponent(color) {
     }
 }
 
-const human = { 'black': true, 'white': false };
-
-const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
-
+// 打てる場所をリストアップ
 function listMovable(newBoard) {
-    let movable = [], color = getColor(newBoard);
-    for (let i = 0; i < newBoard.length; i++) {
+    let movable = [];
+    const color = getColor(newBoard);
+    for (let i = 0; i < newBoard.length - 1; i++) {
         const cellState = newBoard[i];
         if (cellState === 'empty') {
             for (const d of directions) {
@@ -78,16 +82,37 @@ function listMovable(newBoard) {
     return movable;
 }
 
+// 打てる場所があるか
 function existsMovable(newBoard) {
-    return listMovable(newBoard).length !== 0;
+    const color = getColor(newBoard);
+    for (let i = 0; i < newBoard.length - 1; i++) {
+        const cellState = newBoard[i];
+        if (cellState === 'empty') {
+            for (const d of directions) {
+                let next = i + d;
+                while (newBoard[next] === opponent(color)) {
+                    next += d;
+                }
+                if (newBoard[next] === color) {
+                    next -= d;
+                    if (newBoard[next] === opponent(color)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
+// クリック時の動作
 function makeMove() {
     const idx = Number(this.getAttribute('id'));
     if (!human[getColor(board)] || board[idx] !== 'empty') return;
     move(idx);
 }
 
+// 着手
 function move(idx) {
     const color = getColor(board);
     if (board[idx] !== 'empty') return;
@@ -115,7 +140,7 @@ function move(idx) {
             return x === 'white';
         }).length;
         changeColor(board);
-        let color = getColor(board);
+        const color = getColor(board);
         if (existsMovable(board)) {
             document.getElementById('turn').textContent = color;
         } else {
@@ -123,6 +148,7 @@ function move(idx) {
             if (existsMovable(board)) {
                 alert(color + ' pass');
             } else {
+                board[91] = 'end';
                 document.getElementById('turn').textContent = '終局';
                 alert('終局');
             }
@@ -131,10 +157,6 @@ function move(idx) {
             move(moveByAI());
         }
     }
-}
-
-if (!human['black']) {
-    move(moveByAI());
 }
 
 function afterMove(oldBoard, idx) {
@@ -158,6 +180,9 @@ function afterMove(oldBoard, idx) {
         changeColor(newBoard);
         if (!existsMovable(newBoard)) {
             changeColor(newBoard);
+            if (!existsMovable(newBoard)) {
+                newBoard[91] = 'end';
+            }
         }
     }
     return newBoard;
@@ -166,7 +191,13 @@ function afterMove(oldBoard, idx) {
 // 黒番から見た評価値
 function evalBoard(newBoard) {
     let res = 0, v = { 'black': 1, 'white': -1, 'empty': 0, 'wall': 0 };
-    for (let i = 0; i < newBoard.length; i++) {
+    if (getColor(newBoard) === 'end') {
+        for (let i = 0; i < newBoard.length - 1; i++) {
+            res += 1000 * v[newBoard[i]];
+        }
+        return res;
+    }
+    for (let i = 0; i < newBoard.length - 1; i++) {
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {  // 隅
             value = 16;
@@ -210,7 +241,7 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI() {
-    let movable = listMovable(board), res = null, maxScore = -Infinity, color = getColor(board);
+    let movable = listMovable(board), res = [], maxScore = -Infinity, color = getColor(board);
     for (const idx of movable) {
         let newBoard = afterMove(board, idx), newMax = -Infinity;
         let newMovable = listMovable(newBoard);
@@ -228,10 +259,24 @@ function moveByAI() {
         if (color !== newColor) {
             eval *= -1;
         }
-        if (maxScore === -Infinity || eval > maxScore) {
-            res = idx;
+        if (newMovable === []) {
+            eval = evalBoard(newBoard);
+            if (color === 'white') {
+                eval *= -1;
+            }
+        }
+        if (eval > maxScore) {
+            res = [idx];
             maxScore = eval;
+        } else if (eval === maxScore) {
+            res.push(idx);
         }
     }
-    return res;
+    return res[Math.floor(Math.random() * res.length)];
+}
+
+const human = { 'black': false, 'white': true };
+
+if (!human['black']) {
+    move(moveByAI());
 }
