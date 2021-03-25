@@ -264,8 +264,8 @@ function search(currentBoard, depth, prevColor) {
             empty++;
         }
     }
-    if (depth === 0 && empty === additionalDepth && empty) {
-        return search(currentBoard, additionalDepth, prevColor);
+    if (depth === 0 && empty && empty <= additionalDepth) {
+        return search(currentBoard, empty, prevColor);
     }
     let eval = -Infinity;
     const color = getColor(currentBoard);
