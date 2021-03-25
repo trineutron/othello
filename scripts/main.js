@@ -258,6 +258,15 @@ function moveByAI(depth) {
 
 // 前の着手から見た評価値
 function search(currentBoard, depth, prevColor) {
+    let empty = 0;
+    for (const state of currentBoard) {
+        if (state === 'empty') {
+            empty++;
+        }
+    }
+    if (depth === 0 && empty === additionalDepth && empty) {
+        return search(currentBoard, additionalDepth, prevColor);
+    }
     let eval = -Infinity;
     const color = getColor(currentBoard);
     const movable = listMovable(currentBoard);
@@ -282,6 +291,7 @@ function search(currentBoard, depth, prevColor) {
 }
 
 const defaultDepth = 4;
+const additionalDepth = 10 - defaultDepth;
 const human = { 'black': true, 'white': false };
 
 if (!human['black']) {
