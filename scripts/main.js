@@ -245,7 +245,7 @@ function moveByAI(depth) {
     const color = getColor(board);
     for (const idx of movable) {
         let newBoard = afterMove(board, idx);
-        const eval = search(newBoard, depth - 1, color);
+        const eval = search(newBoard, depth - 1, color, maxScore - 1);
         if (eval > maxScore) {
             res = [idx];
             maxScore = eval;
@@ -256,8 +256,8 @@ function moveByAI(depth) {
     return res[Math.floor(Math.random() * res.length)];
 }
 
-// 前の着手から見た評価値
-function search(currentBoard, depth, prevColor) {
+// 前の着手から見た評価値、α以下が確定したら枝刈り
+function search(currentBoard, depth, prevColor, alpha) {
     let empty = 0;
     for (const state of currentBoard) {
         if (state === 'empty') {
@@ -265,7 +265,7 @@ function search(currentBoard, depth, prevColor) {
         }
     }
     if (depth === 0 && empty && empty <= additionalDepth) {
-        return search(currentBoard, empty, prevColor);
+        return search(currentBoard, empty, prevColor, alpha);
     }
     let eval = -Infinity;
     const color = getColor(currentBoard);
@@ -279,9 +279,12 @@ function search(currentBoard, depth, prevColor) {
     }
     for (const idx of movable) {
         const newBoard = afterMove(currentBoard, idx);
-        let newEval = search(newBoard, depth - 1, color);
+        let newEval = search(newBoard, depth - 1, color, eval);
         if (newEval > eval) {
             eval = newEval;
+            if (prevColor !== color && -eval <= alpha) {
+                break;
+            }
         }
     }
     if (prevColor !== color) {
@@ -290,8 +293,8 @@ function search(currentBoard, depth, prevColor) {
     return eval;
 }
 
-const defaultDepth = 4;
-const additionalDepth = 10 - defaultDepth;
+const defaultDepth = 5;
+const additionalDepth = 12 - defaultDepth;
 const human = { 'black': true, 'white': false };
 
 if (!human['black']) {
