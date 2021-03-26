@@ -289,9 +289,19 @@ function moveByAI(depth) {
     movable.sort(function (a, b) {
         return evals[b] - evals[a];
     })
+    let first = true;
     for (const idx of movable) {
         const newBoard = newBoards[idx];
-        const eval = search(newBoard, depth - 1, color, maxScore - 1, Infinity);
+        let eval;
+        if (first) {
+            eval = search(newBoard, depth - 1, color, maxScore - 1, Infinity);
+            first = false;
+        } else {
+            eval = search(newBoard, depth - 1, color, maxScore - 1, maxScore);
+            if (eval >= maxScore) {
+                eval = search(newBoard, depth - 1, color, eval, Infinity);
+            }
+        }
         if (eval > maxScore) {
             res = [idx];
             maxScore = eval;
