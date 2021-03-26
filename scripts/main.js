@@ -212,12 +212,20 @@ function afterMove(oldBoard, idx) {
 function evalBoard(newBoard) {
     let res = 0;
     if (getColor(newBoard) === end) {
+        let countEmpty = 0;
         for (let i = 0; i < newBoard.length - 1; i++) {
             if (Math.abs(newBoard[i]) === 1) {
                 res += newBoard[i];
+            } else if (newBoard[i] === empty) {
+                countEmpty++;
             }
         }
-        return res;
+        if (res > 0) {
+            res += countEmpty;
+        } else if (res < 0) {
+            res -= countEmpty;
+        }
+        return 1000 * res;
     }
     for (let i = 0; i < newBoard.length - 1; i++) {
         if (Math.abs(newBoard[i]) !== 1) {
@@ -268,7 +276,7 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI(depth) {
-    let movable = listMovable(board), res = [], maxScore = -1000;
+    let movable = listMovable(board), res = [], maxScore = -Infinity;
     const color = getColor(board);
     let newBoards = {}, evals = {};
     for (const idx of movable) {
@@ -283,7 +291,7 @@ function moveByAI(depth) {
     })
     for (const idx of movable) {
         const newBoard = newBoards[idx];
-        const eval = search(newBoard, depth - 1, color, maxScore - 1, 1000);
+        const eval = search(newBoard, depth - 1, color, maxScore - 1, Infinity);
         if (eval > maxScore) {
             res = [idx];
             maxScore = eval;
