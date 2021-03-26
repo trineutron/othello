@@ -256,7 +256,7 @@ function moveByAI(depth) {
     })
     for (const idx of movable) {
         const newBoard = newBoards[idx];
-        const eval = search(newBoard, depth - 1, color, maxScore - 1);
+        const eval = search(newBoard, depth - 1, color, maxScore - 1, Infinity);
         if (eval > maxScore) {
             res = [idx];
             maxScore = eval;
@@ -267,8 +267,8 @@ function moveByAI(depth) {
     return res[Math.floor(Math.random() * res.length)];
 }
 
-// 前の着手から見た評価値、α以下が確定したら枝刈り
-function search(currentBoard, depth, prevColor, alpha) {
+// 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
+function search(currentBoard, depth, prevColor, alpha, beta) {
     let empty = 0;
     for (const state of currentBoard) {
         if (state === 'empty') {
@@ -276,10 +276,13 @@ function search(currentBoard, depth, prevColor, alpha) {
         }
     }
     if (depth === 0 && empty && empty <= additionalDepth) {
-        return search(currentBoard, empty, prevColor, alpha);
+        return search(currentBoard, empty, prevColor, alpha, beta);
     }
-    let eval = -Infinity;
     const color = getColor(currentBoard);
+    let eval = alpha;
+    if (prevColor !== color) {
+        eval = -beta;
+    }
     let movable = listMovable(currentBoard);
     if (depth === 0 || color === 'end') {
         eval = evalBoard(currentBoard);
@@ -301,10 +304,20 @@ function search(currentBoard, depth, prevColor, alpha) {
     })
     for (const idx of movable) {
         const newBoard = newBoards[idx];
-        let newEval = search(newBoard, depth - 1, color, eval);
+        let newAlpha = alpha, newBeta = beta;
+        if (prevColor !== color) {
+            newAlpha = -beta;
+            newBeta = -alpha;
+        }
+        let newEval = search(newBoard, depth - 1, color, newAlpha, newBeta);
         if (newEval > eval) {
             eval = newEval;
-            if (prevColor !== color && -eval <= alpha) {
+            if (prevColor === color) {
+                alpha = eval;
+            } else {
+                beta = -eval;
+            }
+            if (alpha >= beta) {
                 break;
             }
         }
