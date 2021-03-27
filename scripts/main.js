@@ -235,11 +235,11 @@ function afterMove(oldBoard, idx) {
 function evalBoard(newBoard) {
     let res = 0;
     if (getColor(newBoard) === end) {
-        res = board[92] - board[93];
+        res = newBoard[92] - newBoard[93];
         if (res > 0) {
-            res = 64 - board[93];
+            res = 64 - 2 * newBoard[93];
         } else if (res < 0) {
-            res = board[92] - 64;
+            res = 2 * newBoard[92] - 64;
         }
         return 1000 * res;
     }
