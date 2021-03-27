@@ -38,6 +38,8 @@ for (let i = 0; i < 91; i++) {
     }
 }
 board.push(black);
+board.push(2);
+board.push(2);
 
 const directions = [-10, -9, -8, -1, 1, 8, 9, 10];
 
@@ -51,9 +53,32 @@ function changeColor(newBoard) {
     newBoard[91] = opponent(newBoard[91]);
 }
 
+function addStone(newBoard, color) {
+    if (color === black) {
+        newBoard[92]++;
+    } else {
+        newBoard[93]++;
+    }
+}
+
+function flipStone(newBoard, color) {
+    if (color === black) {
+        newBoard[92]++;
+        newBoard[93]--;
+    } else {
+        newBoard[93]++;
+        newBoard[92]--;
+    }
+}
+
 // 表示を含めて石を返す
 function flip(idx) {
     const color = getColor(board);
+    if (board[idx] === empty) {
+        addStone(board, color);
+    } else {
+        flipStone(board, color);
+    }
     board[idx] = color;
     document.getElementById(idx).setAttribute('class', colorString(color));
 }
@@ -143,12 +168,8 @@ function move(idx) {
     }
     if (movable) {
         flip(idx);
-        document.getElementById('countBlack').textContent = board.slice(0, 91).filter(function (x) {
-            return x === black;
-        }).length;
-        document.getElementById('countWhite').textContent = board.slice(0, 91).filter(function (x) {
-            return x === white;
-        }).length;
+        document.getElementById('countBlack').textContent = board[92];
+        document.getElementById('countWhite').textContent = board[93];
         changeColor(board);
         const color = getColor(board);
         if (existsMovable(board)) {
@@ -190,6 +211,7 @@ function afterMove(oldBoard, idx) {
             next -= d;
             while (newBoard[next] === opponent(color)) {
                 newBoard[next] = color;
+                flipStone(newBoard, color);
                 movable = true;
                 next -= d;
             }
@@ -197,6 +219,7 @@ function afterMove(oldBoard, idx) {
     }
     if (movable) {
         newBoard[idx] = color;
+        addStone(newBoard, color);
         changeColor(newBoard);
         if (!existsMovable(newBoard)) {
             changeColor(newBoard);
@@ -212,18 +235,11 @@ function afterMove(oldBoard, idx) {
 function evalBoard(newBoard) {
     let res = 0;
     if (getColor(newBoard) === end) {
-        let countEmpty = 0;
-        for (let i = 0; i < newBoard.length - 1; i++) {
-            if (Math.abs(newBoard[i]) === 1) {
-                res += newBoard[i];
-            } else if (newBoard[i] === empty) {
-                countEmpty++;
-            }
-        }
+        res = board[92] - board[93];
         if (res > 0) {
-            res += countEmpty;
+            res = 64 - board[93];
         } else if (res < 0) {
-            res -= countEmpty;
+            res = board[92] - 64;
         }
         return 1000 * res;
     }
@@ -276,12 +292,12 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI(depth) {
-    let movable = listMovable(board), res = [], maxScore = -Infinity;
+    let movable = listMovable(board), res = [], maxScore = -64000;
     const color = getColor(board);
     let newBoards = {}, evals = {};
     for (const idx of movable) {
         newBoards[idx] = afterMove(board, idx);
-        evals[idx] = search(newBoards[idx], 0, color, -Infinity, Infinity);
+        evals[idx] = search(newBoards[idx], 0, color, -64000, 64000);
     }
     movable.sort(function (a, b) {
         return evals[b] - evals[a];
@@ -291,12 +307,12 @@ function moveByAI(depth) {
         const newBoard = newBoards[idx];
         let eval;
         if (first) {
-            eval = search(newBoard, depth - 1, color, maxScore - 1, Infinity);
+            eval = search(newBoard, depth - 1, color, -64000, 64000);
             first = false;
         } else {
             eval = search(newBoard, depth - 1, color, maxScore - 1, maxScore);
             if (eval >= maxScore) {
-                eval = search(newBoard, depth - 1, color, eval, Infinity);
+                eval = search(newBoard, depth - 1, color, eval, 64000);
             }
         }
         if (eval > maxScore) {
@@ -327,7 +343,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     if (depth > 1) {
         let evals = {};
         for (const idx of movable) {
-            evals[idx] = search(afterMove(currentBoard, idx), 0, color, -Infinity, Infinity);
+            evals[idx] = search(afterMove(currentBoard, idx), 0, color, -64000, 64000);
         }
         movable.sort(function (a, b) {
             return evals[b] - evals[a];
