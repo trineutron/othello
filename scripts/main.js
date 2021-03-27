@@ -233,7 +233,7 @@ function afterMove(oldBoard, idx) {
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-    let res = 0;
+    let res = Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
         if (res > 0) {
@@ -250,39 +250,12 @@ function evalBoard(newBoard) {
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {  // 隅
             value = 16;
-            for (const d of [-9, -1, 1, 9]) {
-                let next = i + d;
-                while (newBoard[next] === newBoard[i]) {
-                    next += d;
-                }
-                if (newBoard[next] === empty) {
-                    value++;
-                }
-            }
         }
         for (const d of directions) {
             if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
                 value--;
                 if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
-                    if (d === -10 || d === -8 || d === 8 || d === 10) {  // X
-                        value -= 12;
-                    } else {  // C
-                        let next = i - d;
-                        while (newBoard[next] === newBoard[i]) {
-                            next -= d;
-                        }
-                        // 隅に繋がっておらず山でもない
-                        if (newBoard[next] !== wall &&
-                            !(newBoard[next] === empty && newBoard[next - d] === wall)) {
-                            value -= 8;
-                            // ウイング
-                            if (newBoard[next] === empty
-                                && newBoard[next - d] === empty
-                                && newBoard[next - 2 * d] === wall) {
-                                value += 4;
-                            }
-                        }
-                    }
+                    value -= 4;
                 }
             }
         }
@@ -292,7 +265,7 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI(depth) {
-    let movable = listMovable(board), res = [], maxScore = -64000;
+    let movable = listMovable(board), res, maxScore = -64000;
     const color = getColor(board);
     let newBoards = {}, evals = {};
     for (const idx of movable) {
@@ -310,19 +283,17 @@ function moveByAI(depth) {
             eval = search(newBoard, depth - 1, color, -64000, 64000);
             first = false;
         } else {
-            eval = search(newBoard, depth - 1, color, maxScore - 1, maxScore);
-            if (eval >= maxScore) {
+            eval = search(newBoard, depth - 1, color, maxScore, maxScore + 1);
+            if (eval >= maxScore + 1) {
                 eval = search(newBoard, depth - 1, color, eval, 64000);
             }
         }
         if (eval > maxScore) {
-            res = [idx];
+            res = idx;
             maxScore = eval;
-        } else if (eval === maxScore) {
-            res.push(idx);
         }
     }
-    return res[Math.floor(Math.random() * res.length)];
+    return res;
 }
 
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
@@ -378,6 +349,9 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
                 first = false;
                 continue;
             }
+            if (eval < newBeta) {
+                continue;
+            }
             newAlpha = alpha;
             newBeta = beta;
             if (prevColor !== color) {
@@ -397,6 +371,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
                 }
             }
         }
+        first = false;
     }
     if (prevColor !== color) {
         eval *= -1;
