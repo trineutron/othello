@@ -249,13 +249,23 @@ function evalBoard(newBoard) {
         }
         let value = 0;
         if (i === 10 || i === 17 || i === 73 || i === 80) {  // 隅
-            value = 16;
+            value = 12;
         }
         for (const d of directions) {
             if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
                 value--;
                 if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
                     value -= 4;
+                    if (d % 2 === 0) continue;  // X
+                    let next = i - d;
+                    while (newBoard[next] === newBoard[i]) {
+                        next -= d;
+                    }
+                    // 隅に繋がっているか山なら減点なし
+                    if (newBoard[next] === wall ||
+                        newBoard[next] === empty && newBoard[next - d] === wall) {
+                        value += 4;
+                    }
                 }
             }
         }
