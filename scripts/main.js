@@ -233,7 +233,7 @@ function afterMove(oldBoard, idx) {
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-    let res = 0;
+    let res = Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
         if (res > 0) {
@@ -298,8 +298,7 @@ function moveByAI(depth) {
                 eval = search(newBoard, depth - 1, color, eval, 64000);
             }
         }
-        eval += Math.random();
-        if (eval >= maxScore) {
+        if (eval > maxScore) {
             res = idx;
             maxScore = eval;
         }
