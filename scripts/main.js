@@ -233,6 +233,7 @@ function afterMove(oldBoard, idx) {
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
+    const corner = [10, 17, 73, 80];
     let res = Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
@@ -248,28 +249,46 @@ function evalBoard(newBoard) {
             continue;
         }
         let value = 0;
-        if (i === 10 || i === 17 || i === 73 || i === 80) {  // 隅
-            value = 12;
-        }
         for (const d of directions) {
             if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
                 value--;
                 if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
-                    value -= 4;
-                    if (d % 2 === 0) continue;  // X
-                    let next = i - d;
-                    while (newBoard[next] === newBoard[i]) {
-                        next -= d;
+                    if (d % 2 === 0) {  // X
+                        value -= 4;
+                        continue;
                     }
-                    // 隅に繋がっているか山なら減点なし
-                    if (newBoard[next] === wall ||
-                        newBoard[next] === empty && newBoard[next - d] === wall) {
-                        value += 4;
+                    for (let k = 1; k <= 4; k++) {
+                        if (newBoard[i - k * d] === empty) {
+                            value -= 2;
+                        }
                     }
                 }
             }
         }
         res += value * newBoard[i];
+    }
+    // 隅
+    for (let i = 0; i < corner.length; i++) {
+        for (let j = i + 1; j < corner.length; j++) {
+            if (i + j === 3) continue;  // Xライン
+            const d = (corner[j] - corner[i]) / 7;
+            let noEmpty = true, adjust = 0;
+            for (let k = 0; k < 8; k++) {
+                if (newBoard[corner[i] + k * d] === empty) {
+                    noEmpty = false;
+                    break;
+                }
+                adjust += newBoard[corner[i] + k * d];
+            }
+            const edge = newBoard[corner[i]] + newBoard[corner[j]];
+            if (noEmpty) {
+                res += adjust;
+            } else if (edge > 0) {
+                res += 6;
+            } else if (edge < 0) {
+                res -= 6;
+            }
+        }
     }
     return res;
 }
