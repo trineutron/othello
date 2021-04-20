@@ -234,7 +234,7 @@ function afterMove(oldBoard, idx) {
 // 黒番から見た評価値
 function evalBoard(newBoard) {
     const corner = [10, 17, 73, 80];
-    let res = Math.random();
+    let res = 2 * Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
         if (res > 0) {
@@ -284,9 +284,9 @@ function evalBoard(newBoard) {
             if (noEmpty) {
                 res += adjust;
             } else if (edge > 0) {
-                res += 6;
+                res += 8;
             } else if (edge < 0) {
-                res -= 6;
+                res -= 8;
             }
         }
     }
