@@ -192,9 +192,9 @@ function move(idx) {
                 }
             }
             if (countEmpty <= endgameDepth) {
-                move(moveByAI(countEmpty));
+                setTimeout(() => move(moveByAI(countEmpty)), 0);
             } else {
-                move(moveByAI(defaultDepth));
+                setTimeout(() => move(moveByAI(defaultDepth)), 0);
             }
         }
     }
