@@ -234,7 +234,7 @@ function afterMove(oldBoard, idx) {
 // 黒番から見た評価値
 function evalBoard(newBoard) {
     const corner = [10, 17, 73, 80];
-    let res = 2 * Math.random();
+    let res = Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
         if (res > 0) {
@@ -299,7 +299,7 @@ function moveByAI(depth) {
     let newBoards = {}, evals = {};
     for (const idx of movable) {
         newBoards[idx] = afterMove(board, idx);
-        evals[idx] = search(newBoards[idx], 2, color, -64000, 64000);
+        evals[idx] = search(newBoards[idx], 0, color, -64000, 64000);
     }
     movable.sort(function (a, b) {
         return evals[b] - evals[a];
