@@ -233,7 +233,6 @@ function afterMove(oldBoard, idx) {
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-    const corner = [10, 17, 73, 80];
     let res = Math.random();
     if (getColor(newBoard) === end) {
         res = newBoard[92] - newBoard[93];
@@ -252,26 +251,36 @@ function evalBoard(newBoard) {
         for (const d of directions) {
             if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
                 value--;
-                if (i + d === 10 || i + d === 17 || i + d === 73 || i + d === 80) {
-                    if (d % 2 === 0) {  // X
-                        value -= 4;
-                        continue;
-                    }
-                    for (let k = 1; k <= 4; k++) {
-                        if (newBoard[i - k * d] === empty) {
-                            value -= 2;
-                        }
-                    }
-                }
             }
         }
         res += value * newBoard[i];
     }
     // 隅
+    const corner = [10, 17, 73, 80];
     for (let i = 0; i < corner.length; i++) {
         for (let j = i + 1; j < corner.length; j++) {
-            if (i + j === 3) continue;  // Xライン
             const d = (corner[j] - corner[i]) / 7;
+            if (i + j === 3) { // Xライン
+                if (newBoard[corner[i]] === empty) {
+                    res -= 4 * newBoard[corner[i] + d];
+                }
+                if (newBoard[corner[j]] === empty) {
+                    res -= 4 * newBoard[corner[j] - d];
+                }
+                continue;
+            }
+            let value = 0;
+            for (let k = 2; k < 6; k++) {
+                if (newBoard[corner[i] + k * d] === empty) {
+                    value -= 2;
+                }
+            }
+            if (newBoard[corner[i]] === empty) {
+                res += value * newBoard[corner[i] + d];
+            }
+            if (newBoard[corner[j]] === empty) {
+                res += value * newBoard[corner[j] - d];
+            }
             let noEmpty = true, adjust = 0;
             for (let k = 0; k < 8; k++) {
                 if (newBoard[corner[i] + k * d] === empty) {
