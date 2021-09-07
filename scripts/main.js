@@ -349,7 +349,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
         return eval;
     }
     let movable = listMovable(currentBoard);
-    if (depth > 1) {
+    if (depth > 3) {
         let evals = {};
         for (const idx of movable) {
             evals[idx] = search(afterMove(currentBoard, idx), 0, color, -64000, 64000);
