@@ -243,7 +243,7 @@ function evalBoard(newBoard) {
         }
         return 1000 * res;
     }
-    for (let i = 0; i < newBoard.length - 1; i++) {
+    for (let i = 11; i <= 79; i++) {
         if (Math.abs(newBoard[i]) !== 1) {
             continue;
         }
