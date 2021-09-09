@@ -280,14 +280,6 @@ function evalBoard(newBoard) {
                 }
                 continue;
             }
-            for (let k = 0; k < 7; k++) {
-                if (newBoard[corner[i] + k * d] === empty) {
-                    res -= newBoard[corner[i] + (k + 1) * d];
-                }
-                if (newBoard[corner[i] + (k + 1) * d] === empty) {
-                    res -= newBoard[corner[i] + k * d];
-                }
-            }
             let value = 0;
             for (let k = 2; k < 6; k++) {
                 if (newBoard[corner[i] + k * d] === empty) {
