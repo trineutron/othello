@@ -96,7 +96,7 @@ function opponent(color) {
 function listMovable(newBoard) {
     let movable = [];
     const color = getColor(newBoard);
-    for (let i = 0; i < newBoard.length - 1; i++) {
+    for (let i = 10; i <= 80; i++) {
         const cellState = newBoard[i];
         if (cellState === empty) {
             for (const d of directions) {
@@ -120,7 +120,7 @@ function listMovable(newBoard) {
 // 打てる場所があるか
 function existsMovable(newBoard) {
     const color = getColor(newBoard);
-    for (let i = 0; i < newBoard.length - 1; i++) {
+    for (let i = 10; i <= 80; i++) {
         const cellState = newBoard[i];
         if (cellState === empty) {
             for (const d of directions) {
