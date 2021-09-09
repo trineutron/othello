@@ -123,7 +123,7 @@ function listMovable(newBoard) {
 function existsMovable(newBoard) {
     const color = getColor(newBoard);
     for (let i = 10; i <= 80; i++) {
-        if (newBoard[i] === empty) {
+        if (newBoard[i] !== empty) {
             continue;
         }
         for (let j = 0; j < 8; j++) {
