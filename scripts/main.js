@@ -101,15 +101,16 @@ function listMovable(newBoard) {
         if (cellState === empty) {
             for (const d of directions) {
                 let next = i + d;
+                if (newBoard[next] !== opponent(color)) {
+                    continue;
+                }
+                next += d;
                 while (newBoard[next] === opponent(color)) {
                     next += d;
                 }
                 if (newBoard[next] === color) {
-                    next -= d;
-                    if (newBoard[next] === opponent(color)) {
-                        movable.push(i);
-                        break;
-                    }
+                    movable.push(i);
+                    break;
                 }
             }
         }
@@ -125,14 +126,15 @@ function existsMovable(newBoard) {
         if (cellState === empty) {
             for (const d of directions) {
                 let next = i + d;
+                if (newBoard[next] !== opponent(color)) {
+                    continue;
+                }
+                next += d;
                 while (newBoard[next] === opponent(color)) {
                     next += d;
                 }
                 if (newBoard[next] === color) {
-                    next -= d;
-                    if (newBoard[next] === opponent(color)) {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -204,15 +206,19 @@ function afterMove(oldBoard, idx) {
     let newBoard = oldBoard.slice(), movable = false, color = getColor(oldBoard);
     for (const d of directions) {
         let next = idx + d;
+        if (newBoard[next] !== opponent(color)) {
+            continue;
+        }
+        next += d;
         while (newBoard[next] === opponent(color)) {
             next += d;
         }
         if (newBoard[next] === color) {
+            movable = true;
             next -= d;
             while (newBoard[next] === opponent(color)) {
                 newBoard[next] = color;
                 flipStone(newBoard, color);
-                movable = true;
                 next -= d;
             }
         }
