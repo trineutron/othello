@@ -253,14 +253,14 @@ function evalBoard(newBoard) {
         }
         return 1000 * res;
     }
-    for (let i = 11; i <= 79; i++) {
-        if (Math.abs(newBoard[i]) !== 1) {
+    for (let i = 20; i <= 70; i++) {
+        if (Math.abs(newBoard[i]) !== 1 || (i + 1) % 9 < 3) {
             continue;
         }
         let value = 0;
         for (let j = 0; j < 8; j++) {
             const d = directions[j];
-            if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
+            if (newBoard[i + d] === empty) {
                 value--;
             }
         }
@@ -279,6 +279,14 @@ function evalBoard(newBoard) {
                     res -= 6 * newBoard[corner[j] - d];
                 }
                 continue;
+            }
+            for (let k = 0; k < 7; k++) {
+                if (newBoard[corner[i] + k * d] === empty) {
+                    res -= newBoard[corner[i] + (k + 1) * d];
+                }
+                if (newBoard[corner[i] + (k + 1) * d] === empty) {
+                    res -= newBoard[corner[i] + k * d];
+                }
             }
             let value = 0;
             for (let k = 2; k < 6; k++) {
