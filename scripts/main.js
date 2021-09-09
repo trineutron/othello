@@ -97,21 +97,22 @@ function listMovable(newBoard) {
     let movable = [];
     const color = getColor(newBoard);
     for (let i = 10; i <= 80; i++) {
-        const cellState = newBoard[i];
-        if (cellState === empty) {
-            for (const d of directions) {
-                let next = i + d;
-                if (newBoard[next] !== opponent(color)) {
-                    continue;
-                }
+        if (newBoard[i] !== empty) {
+            continue;
+        }
+        for (let j = 0; j < 8; j++) {
+            const d = directions[j];
+            let next = i + d;
+            if (newBoard[next] !== opponent(color)) {
+                continue;
+            }
+            next += d;
+            while (newBoard[next] === opponent(color)) {
                 next += d;
-                while (newBoard[next] === opponent(color)) {
-                    next += d;
-                }
-                if (newBoard[next] === color) {
-                    movable.push(i);
-                    break;
-                }
+            }
+            if (newBoard[next] === color) {
+                movable.push(i);
+                break;
             }
         }
     }
@@ -122,20 +123,21 @@ function listMovable(newBoard) {
 function existsMovable(newBoard) {
     const color = getColor(newBoard);
     for (let i = 10; i <= 80; i++) {
-        const cellState = newBoard[i];
-        if (cellState === empty) {
-            for (const d of directions) {
-                let next = i + d;
-                if (newBoard[next] !== opponent(color)) {
-                    continue;
-                }
+        if (newBoard[i] === empty) {
+            continue;
+        }
+        for (let j = 0; j < 8; j++) {
+            const d = directions[j];
+            let next = i + d;
+            if (newBoard[next] !== opponent(color)) {
+                continue;
+            }
+            next += d;
+            while (newBoard[next] === opponent(color)) {
                 next += d;
-                while (newBoard[next] === opponent(color)) {
-                    next += d;
-                }
-                if (newBoard[next] === color) {
-                    return true;
-                }
+            }
+            if (newBoard[next] === color) {
+                return true;
             }
         }
     }
@@ -154,7 +156,8 @@ function move(idx) {
     const color = getColor(board);
     if (board[idx] !== empty) return;
     let movable = false;
-    for (const d of directions) {
+    for (let i = 0; i < 8; i++) {
+        const d = directions[i];
         let next = idx + d;
         while (board[next] === opponent(color)) {
             next += d;
@@ -204,7 +207,8 @@ function move(idx) {
 
 function afterMove(oldBoard, idx) {
     let newBoard = oldBoard.slice(), movable = false, color = getColor(oldBoard);
-    for (const d of directions) {
+    for (let i = 0; i < 8; i++) {
+        const d = directions[i];
         let next = idx + d;
         if (newBoard[next] !== opponent(color)) {
             continue;
@@ -254,7 +258,8 @@ function evalBoard(newBoard) {
             continue;
         }
         let value = 0;
-        for (const d of directions) {
+        for (let j = 0; j < 8; j++) {
+            const d = directions[j];
             if (newBoard[i + d] === empty && newBoard[i - d] !== wall) {
                 value--;
             }
