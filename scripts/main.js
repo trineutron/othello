@@ -273,10 +273,10 @@ function evalBoard(newBoard) {
             const d = (corner[j] - corner[i]) / 7;
             if (i + j === 3) { // Xライン
                 if (newBoard[corner[i]] === empty) {
-                    res -= 4 * newBoard[corner[i] + d];
+                    res -= 6 * newBoard[corner[i] + d];
                 }
                 if (newBoard[corner[j]] === empty) {
-                    res -= 4 * newBoard[corner[j] - d];
+                    res -= 6 * newBoard[corner[j] - d];
                 }
                 continue;
             }
