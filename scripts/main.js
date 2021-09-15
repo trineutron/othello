@@ -325,7 +325,8 @@ function moveByAI(depth) {
         return evals[b] - evals[a];
     })
     let first = true;
-    for (const idx of movable) {
+    for (let i = 0; i < movable.length; i++) {
+        const idx = movable[i];
         const newBoard = newBoards[idx];
         let eval;
         if (first) {
@@ -370,7 +371,8 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
         });
     }
     let first = true;
-    for (const idx of movable) {
+    for (let i = 0; i < movable.length; i++) {
+        const idx = movable[i];
         const newBoard = afterMove(currentBoard, idx);
         let newAlpha = alpha, newBeta = alpha + 1;
         if (prevColor !== color) {
