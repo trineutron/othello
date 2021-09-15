@@ -191,7 +191,8 @@ function move(idx) {
         }
         if (getColor(board) !== end && !human(getColor(board))) {
             let countEmpty = 0;
-            for (const state of board) {
+            for (let i = 0; i < board.length; i++) {
+                const state = board[i];
                 if (state === empty) {
                     countEmpty++;
                 }
@@ -317,7 +318,8 @@ function moveByAI(depth) {
     let movable = listMovable(board), res, maxScore = -64000;
     const color = getColor(board);
     let newBoards = {}, evals = {};
-    for (const idx of movable) {
+    for (let i = 0; i < movable.length; i++) {
+        const idx = movable[i];
         newBoards[idx] = afterMove(board, idx);
         evals[idx] = search(newBoards[idx], 0, color, -64000, 64000);
     }
@@ -363,7 +365,8 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     let movable = listMovable(currentBoard);
     if (depth > 3) {
         let evals = {};
-        for (const idx of movable) {
+        for (let i = 0; i < movable.length; i++) {
+            const idx = movable[i];
             evals[idx] = search(afterMove(currentBoard, idx), 0, color, -64000, 64000);
         }
         movable.sort(function (a, b) {
