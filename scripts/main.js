@@ -315,7 +315,7 @@ function evalBoard(newBoard) {
 }
 
 function moveByAI(depth) {
-    let movable = listMovable(board), res, maxScore = -64000;
+    let movable = listMovable(board), res, maxScore = -65000;
     const color = getColor(board);
     let newBoards = [], evals = [];
     for (let i = 0; i < movable.length; i++) {
@@ -343,6 +343,9 @@ function moveByAI(depth) {
         if (eval > maxScore) {
             res = idx;
             maxScore = eval;
+            if (maxScore === 64000) {
+                break;
+            }
         }
     }
     return res;
@@ -434,7 +437,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
 }
 
 const defaultDepth = 8;
-const endgameDepth = 14;
+const endgameDepth = 16;
 
 function human(color) {
     if (color === black) {
