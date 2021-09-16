@@ -317,7 +317,7 @@ function evalBoard(newBoard) {
 function moveByAI(depth) {
     let movable = listMovable(board), res, maxScore = -64000;
     const color = getColor(board);
-    let newBoards = {}, evals = {};
+    let newBoards = [], evals = [];
     for (let i = 0; i < movable.length; i++) {
         const idx = movable[i];
         newBoards[idx] = afterMove(board, idx);
@@ -364,7 +364,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     }
     let movable = listMovable(currentBoard);
     if (depth > 3) {
-        let evals = {};
+        let evals = [];
         for (let i = 0; i < movable.length; i++) {
             const idx = movable[i];
             evals[idx] = search(afterMove(currentBoard, idx), 0, color, -64000, 64000);
