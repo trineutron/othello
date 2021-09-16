@@ -102,6 +102,7 @@ function opponent(color) {
 function listMovable(newBoard) {
   let movable = [];
   const color = getColor(newBoard);
+  const oppColor = opponent(color);
   for (let i = 10; i <= 80; i++) {
     if (newBoard[i] !== empty) {
       continue;
@@ -109,11 +110,11 @@ function listMovable(newBoard) {
     for (let j = 0; j < 8; j++) {
       const d = directions[j];
       let next = i + d;
-      if (newBoard[next] !== opponent(color)) {
+      if (newBoard[next] !== oppColor) {
         continue;
       }
       next += d;
-      while (newBoard[next] === opponent(color)) {
+      while (newBoard[next] === oppColor) {
         next += d;
       }
       if (newBoard[next] === color) {
@@ -128,6 +129,7 @@ function listMovable(newBoard) {
 // 打てる場所があるか
 function existsMovable(newBoard) {
   const color = getColor(newBoard);
+  const oppColor = opponent(color);
   for (let i = 10; i <= 80; i++) {
     if (newBoard[i] !== empty) {
       continue;
@@ -135,11 +137,11 @@ function existsMovable(newBoard) {
     for (let j = 0; j < 8; j++) {
       const d = directions[j];
       let next = i + d;
-      if (newBoard[next] !== opponent(color)) {
+      if (newBoard[next] !== oppColor) {
         continue;
       }
       next += d;
-      while (newBoard[next] === opponent(color)) {
+      while (newBoard[next] === oppColor) {
         next += d;
       }
       if (newBoard[next] === color) {
