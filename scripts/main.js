@@ -263,17 +263,15 @@ function evalBoard(newBoard) {
     return 1000 * res;
   }
   for (let i = 20; i <= 70; i++) {
-    if (Math.abs(newBoard[i]) !== 1 || (i + 1) % 9 < 3) {
+    if ((i + 1) % 9 < 3 || newBoard[i] === empty) {
       continue;
     }
-    let value = 0;
     for (let j = 0; j < 8; j++) {
       const d = directions[j];
       if (newBoard[i + d] === empty) {
-        value--;
+        res -= newBoard[i];
       }
     }
-    res += value * newBoard[i];
   }
   // 隅
   const corner = [10, 17, 73, 80];
