@@ -162,17 +162,18 @@ function makeMove() {
 // 着手
 function move(idx) {
   const color = getColor(board);
+  const oppColor = opponent(color);
   if (board[idx] !== empty) return;
   let movable = false;
   for (let i = 0; i < 8; i++) {
     const d = directions[i];
     let next = idx + d;
-    while (board[next] === opponent(color)) {
+    while (board[next] === oppColor) {
       next += d;
     }
     if (board[next] === color) {
       next -= d;
-      while (board[next] === opponent(color)) {
+      while (board[next] === oppColor) {
         flip(next);
         movable = true;
         next -= d;
@@ -218,20 +219,21 @@ function afterMove(oldBoard, idx) {
   let newBoard = oldBoard.slice();
   let movable = false;
   const color = getColor(oldBoard);
+  const oppColor = opponent(color);
   for (let i = 0; i < 8; i++) {
     const d = directions[i];
     let next = idx + d;
-    if (newBoard[next] !== opponent(color)) {
+    if (newBoard[next] !== oppColor) {
       continue;
     }
     next += d;
-    while (newBoard[next] === opponent(color)) {
+    while (newBoard[next] === oppColor) {
       next += d;
     }
     if (newBoard[next] === color) {
       movable = true;
       next -= d;
-      while (newBoard[next] === opponent(color)) {
+      while (newBoard[next] === oppColor) {
         newBoard[next] = color;
         flipStone(newBoard, color);
         next -= d;
