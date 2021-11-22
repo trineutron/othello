@@ -207,7 +207,7 @@ function move(idx) {
         }
       }
       if (countEmpty <= endgameDepth) {
-        setTimeout(() => move(moveByAI(countEmpty)), 0);
+        setTimeout(() => move(moveByAI(2 * countEmpty)), 0);
       } else {
         setTimeout(() => move(moveByAI(defaultDepth)), 0);
       }
@@ -359,20 +359,6 @@ function moveByAI(depth) {
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
 function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
   const color = getColor(currentBoard);
-  if (depth <= 0 && !existsMovable(currentBoard)) {
-    let newBoard = currentBoard.slice();
-    if (pass) {
-      newBoard[91] = end;
-      let score = evalBoard(newBoard);
-      if (prevColor === white) {
-        score *= -1;
-      }
-      return score;
-    } else {
-      changeColor(newBoard);
-    }
-    return -search(newBoard, depth, color, -beta, -alpha, true);
-  }
   let score = -beta;
   if (depth <= 0 || color === end) {
     score = evalBoard(currentBoard);
