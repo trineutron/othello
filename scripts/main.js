@@ -246,7 +246,7 @@ function afterMove(oldBoard, idx) {
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-  let res = 0;
+  let res = Math.random();
   if (getColor(newBoard) === end) {
     res = newBoard[92] - newBoard[93];
     if (res > 0) {
@@ -438,7 +438,7 @@ const endgameDepth = 16;
 
 function human(color) {
   if (color === black) {
-    return false;
+    return true;
   } else {
     return false;
   }
