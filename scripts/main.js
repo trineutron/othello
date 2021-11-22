@@ -217,7 +217,6 @@ function move(idx) {
 
 function afterMove(oldBoard, idx) {
   let newBoard = oldBoard.slice();
-  let movable = false;
   const color = getColor(oldBoard);
   const oppColor = opponent(color);
   for (let i = 0; i < 8; i++) {
@@ -231,7 +230,6 @@ function afterMove(oldBoard, idx) {
       next += d;
     }
     if (newBoard[next] === color) {
-      movable = true;
       next -= d;
       while (newBoard[next] === oppColor) {
         newBoard[next] = color;
@@ -240,23 +238,15 @@ function afterMove(oldBoard, idx) {
       }
     }
   }
-  if (movable) {
-    newBoard[idx] = color;
-    addStone(newBoard, color);
-    changeColor(newBoard);
-    if (!existsMovable(newBoard)) {
-      changeColor(newBoard);
-      if (!existsMovable(newBoard)) {
-        newBoard[91] = end;
-      }
-    }
-  }
+  newBoard[idx] = color;
+  addStone(newBoard, color);
+  changeColor(newBoard);
   return newBoard;
 }
 
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-  let res = Math.random();
+  let res = 0;
   if (getColor(newBoard) === end) {
     res = newBoard[92] - newBoard[93];
     if (res > 0) {
@@ -368,6 +358,12 @@ function moveByAI(depth) {
 
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
 function search(currentBoard, depth, prevColor, alpha, beta) {
+  if (!existsMovable(currentBoard)) {
+    changeColor(currentBoard);
+    if (!existsMovable(currentBoard)) {
+      currentBoard[91] = end;
+    }
+  }
   const color = getColor(currentBoard);
   let score = alpha;
   if (prevColor !== color) {
@@ -459,7 +455,7 @@ const endgameDepth = 16;
 
 function human(color) {
   if (color === black) {
-    return true;
+    return false;
   } else {
     return false;
   }
