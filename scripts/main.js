@@ -357,18 +357,23 @@ function moveByAI(depth) {
 }
 
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
-function search(currentBoard, depth, prevColor, alpha, beta) {
-  if (!existsMovable(currentBoard)) {
-    changeColor(currentBoard);
-    if (!existsMovable(currentBoard)) {
-      currentBoard[91] = end;
-    }
-  }
+function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
   const color = getColor(currentBoard);
-  let score = alpha;
-  if (prevColor !== color) {
-    score = -beta;
+  if (depth <= 0 && !existsMovable(currentBoard)) {
+    let newBoard = currentBoard.slice();
+    if (pass) {
+      newBoard[91] = end;
+      let score = evalBoard(newBoard);
+      if (prevColor === white) {
+        score *= -1;
+      }
+      return score;
+    } else {
+      changeColor(newBoard);
+    }
+    return -search(newBoard, depth, color, -beta, -alpha, true);
   }
+  let score = -beta;
   if (depth <= 0 || color === end) {
     score = evalBoard(currentBoard);
     if (prevColor === white) {
@@ -377,6 +382,15 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     return score;
   }
   let movable = listMovable(currentBoard);
+  if (movable.length === 0) {
+    let newBoard = currentBoard.slice();
+    if (pass) {
+      newBoard[91] = end;
+    } else {
+      changeColor(newBoard);
+    }
+    return -search(newBoard, depth, color, -beta, -alpha, true);
+  }
   if (depth > 3) {
     let scores = [];
     for (let i = 0; i < movable.length; i++) {
@@ -397,10 +411,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
   for (let i = 0; i < movable.length; i++) {
     const idx = movable[i];
     const newBoard = afterMove(currentBoard, idx);
-    let newAlpha = alpha;
-    if (prevColor !== color) {
-      newAlpha = -beta;
-    }
+    let newAlpha = -beta;
     let newBeta = newAlpha + 1;
     if (first) {
       newBeta = newAlpha + beta - alpha;
@@ -408,11 +419,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     let newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
     if (newScore > score) {
       score = newScore;
-      if (prevColor === color) {
-        alpha = score;
-      } else {
-        beta = -score;
-      }
+      beta = -score;
       if (alpha >= beta) {
         break;
       }
@@ -423,20 +430,12 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
       if (score < newBeta) {
         continue;
       }
-      newAlpha = alpha;
-      newBeta = beta;
-      if (prevColor !== color) {
-        newAlpha = -beta;
-        newBeta = -alpha;
-      }
+      newAlpha = -beta;
+      newBeta = -alpha;
       newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
       if (newScore > score) {
         score = newScore;
-        if (prevColor === color) {
-          alpha = score;
-        } else {
-          beta = -score;
-        }
+        beta = -score;
         if (alpha >= beta) {
           break;
         }
@@ -444,9 +443,7 @@ function search(currentBoard, depth, prevColor, alpha, beta) {
     }
     first = false;
   }
-  if (prevColor !== color) {
-    score *= -1;
-  }
+  score *= -1;
   return score;
 }
 
