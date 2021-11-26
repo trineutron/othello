@@ -331,14 +331,12 @@ function moveByAI(depth) {
   movable.sort(function (a, b) {
     return scores[b] - scores[a];
   });
-  let first = true;
   for (let i = 0; i < movable.length; i++) {
     const idx = movable[i];
     const newBoard = newBoards[idx];
     let score;
-    if (first) {
+    if (i === 0) {
       score = search(newBoard, depth - 1, color, -64000, 64000);
-      first = false;
     } else {
       score = search(newBoard, depth - 1, color, maxScore, maxScore + 1);
       if (score >= maxScore + 1) {
@@ -393,44 +391,30 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
       return scores[b] - scores[a];
     });
   }
-  let first = true;
   for (let i = 0; i < movable.length; i++) {
     const idx = movable[i];
     const newBoard = afterMove(currentBoard, idx);
     let newAlpha = -beta;
     let newBeta = newAlpha + 1;
-    if (first) {
-      newBeta = newAlpha + beta - alpha;
+    if (i === 0) {
+      newBeta = -alpha;
     }
     let newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
-    if (newScore > score) {
+    while (newScore > score) {
       score = newScore;
       beta = -score;
-      if (alpha >= beta) {
+      if (i === 0 || alpha >= beta || score < newBeta) {
         break;
-      }
-      if (first) {
-        first = false;
-        continue;
-      }
-      if (score < newBeta) {
-        continue;
       }
       newAlpha = -beta;
       newBeta = -alpha;
       newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
-      if (newScore > score) {
-        score = newScore;
-        beta = -score;
-        if (alpha >= beta) {
-          break;
-        }
-      }
     }
-    first = false;
+    if (alpha >= beta) {
+      break;
+    }
   }
-  score *= -1;
-  return score;
+  return -score;
 }
 
 const defaultDepth = 8;
