@@ -244,9 +244,16 @@ function afterMove(oldBoard, idx) {
   return newBoard;
 }
 
+// 標準正規分布に従う乱数
+function gauss() {
+  let r0 = Math.random();
+  let r1 = Math.random();
+  return Math.sqrt(-2.0 * Math.log(r0)) * Math.sin(2 * Math.PI * r1);
+}
+
 // 黒番から見た評価値
 function evalBoard(newBoard) {
-  let res = Math.random();
+  let res = 0;
   if (getColor(newBoard) === end) {
     res = newBoard[92] - newBoard[93];
     if (res > 0) {
@@ -256,6 +263,7 @@ function evalBoard(newBoard) {
     }
     return 1000 * res;
   }
+  res = 4 * gauss();
   for (let i = 20; i <= 70; i++) {
     if ((i + 1) % 9 < 3 || newBoard[i] === empty) {
       continue;
