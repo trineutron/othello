@@ -190,12 +190,9 @@ function move(idx) {
       document.getElementById("turn").textContent = colorString(color);
     } else {
       changeColor(board);
-      if (existsMovable(board)) {
-        alert(colorString(color) + " pass");
-      } else {
+      if (!existsMovable(board)) {
         board[91] = end;
         document.getElementById("turn").textContent = "終局";
-        alert("終局");
       }
     }
     if (getColor(board) !== end && !human(getColor(board))) {
@@ -207,9 +204,9 @@ function move(idx) {
         }
       }
       if (countEmpty <= endgameDepth) {
-        setTimeout(() => move(moveByAI(2 * countEmpty)), 0);
+        setTimeout(() => move(moveByAI(2 * countEmpty)), 500);
       } else {
-        setTimeout(() => move(moveByAI(defaultDepth)), 0);
+        setTimeout(() => move(moveByAI(defaultDepth)), 500);
       }
     }
   }
