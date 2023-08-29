@@ -204,7 +204,7 @@ function move(idx) {
         }
       }
       if (countEmpty <= endgameDepth) {
-        setTimeout(() => move(moveByAI(2 * countEmpty)), 500);
+        setTimeout(() => move(moveByAI(endgameDepth)), 500);
       } else {
         setTimeout(() => move(moveByAI(defaultDepth)), 500);
       }
@@ -378,7 +378,7 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
     } else {
       changeColor(newBoard);
     }
-    return -search(newBoard, depth, color, -beta, -alpha, true);
+    return -search(newBoard, depth - 1, color, -beta, -alpha, true);
   }
   if (depth > 3) {
     let scores = [];
