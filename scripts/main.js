@@ -203,11 +203,7 @@ function move(idx) {
           countEmpty++;
         }
       }
-      if (countEmpty <= endgameDepth) {
-        setTimeout(() => move(moveByAI(endgameDepth)), 500);
-      } else {
-        setTimeout(() => move(moveByAI(defaultDepth)), 500);
-      }
+      setTimeout(() => move(moveByAI(countEmpty + 1)), 0);
     }
   }
 }
@@ -321,46 +317,80 @@ function evalBoard(newBoard) {
   return res;
 }
 
-function moveByAI(depth) {
+function moveByAI(countEmpty) {
+  const start = Date.now();
   let movable = listMovable(board);
   let res;
-  let maxScore = -65000;
   const color = getColor(board);
   let newBoards = [];
   let scores = [];
   for (let i = 0; i < movable.length; i++) {
     const idx = movable[i];
     newBoards[idx] = afterMove(board, idx);
-    scores[idx] = search(newBoards[idx], 0, color, -64000, 64000);
+    scores[idx] = search(newBoards[idx], 0, color, -64000, 64000, start + 1000);
   }
   movable.sort(function (a, b) {
     return scores[b] - scores[a];
   });
-  for (let i = 0; i < movable.length; i++) {
-    const idx = movable[i];
-    const newBoard = newBoards[idx];
-    let score;
-    if (i === 0) {
-      score = search(newBoard, depth - 1, color, -64000, 64000);
-    } else {
-      score = search(newBoard, depth - 1, color, maxScore, maxScore + 1);
-      if (score >= maxScore + 1) {
-        score = search(newBoard, depth - 1, color, score, 64000);
+  for (let depth = 1; depth <= countEmpty; depth++) {
+    let prevRes = res;
+    let maxScore = -65000;
+    for (let i = 0; i < movable.length; i++) {
+      const idx = movable[i];
+      const newBoard = newBoards[idx];
+      let score;
+      if (i === 0) {
+        score = search(newBoard, depth - 1, color, -64000, 64000, start + 1000);
+      } else {
+        score = search(
+          newBoard,
+          depth - 1,
+          color,
+          maxScore,
+          maxScore + 1,
+          start + 1000
+        );
+        if (score !== null && score >= maxScore + 1) {
+          score = search(
+            newBoard,
+            depth - 1,
+            color,
+            score,
+            64000,
+            start + 1000
+          );
+        }
+      }
+      if (score === null) {
+        console.log(depth - 1);
+        return prevRes;
+      }
+      if (score > maxScore) {
+        res = idx;
+        maxScore = score;
+        if (maxScore === 64000) {
+          return res;
+        }
       }
     }
-    if (score > maxScore) {
-      res = idx;
-      maxScore = score;
-      if (maxScore === 64000) {
-        break;
-      }
+    if (depth === countEmpty) {
+      console.log("Score:", maxScore);
     }
   }
+  console.log(countEmpty);
   return res;
 }
 
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
-function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
+function search(
+  currentBoard,
+  depth,
+  prevColor,
+  alpha,
+  beta,
+  timeout,
+  pass = false
+) {
   const color = getColor(currentBoard);
   let score = -beta;
   if (depth <= 0 || color === end) {
@@ -370,6 +400,9 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
     }
     return score;
   }
+  if (depth >= 4 && Date.now() > timeout) {
+    return null;
+  }
   let movable = listMovable(currentBoard);
   if (movable.length === 0) {
     let newBoard = currentBoard.slice();
@@ -378,7 +411,7 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
     } else {
       changeColor(newBoard);
     }
-    return -search(newBoard, depth - 1, color, -beta, -alpha, true);
+    return -search(newBoard, depth, color, -beta, -alpha, timeout, true);
   }
   if (depth > 3) {
     let scores = [];
@@ -389,8 +422,12 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
         0,
         color,
         -64000,
-        64000
+        64000,
+        timeout
       );
+      if (scores[idx] === null) {
+        return null;
+      }
     }
     movable.sort(function (a, b) {
       return scores[b] - scores[a];
@@ -404,7 +441,17 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
     if (i === 0) {
       newBeta = -alpha;
     }
-    let newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
+    let newScore = search(
+      newBoard,
+      depth - 1,
+      color,
+      newAlpha,
+      newBeta,
+      timeout
+    );
+    if (newScore === null) {
+      return null;
+    }
     while (newScore > score) {
       score = newScore;
       beta = -score;
@@ -413,7 +460,10 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
       }
       newAlpha = -beta;
       newBeta = -alpha;
-      newScore = search(newBoard, depth - 1, color, newAlpha, newBeta);
+      newScore = search(newBoard, depth - 1, color, newAlpha, newBeta, timeout);
+      if (newScore === null) {
+        return null;
+      }
     }
     if (alpha >= beta) {
       break;
@@ -421,9 +471,6 @@ function search(currentBoard, depth, prevColor, alpha, beta, pass = false) {
   }
   return -score;
 }
-
-const defaultDepth = 8;
-const endgameDepth = 16;
 
 function human(color) {
   if (color === black) {
@@ -434,5 +481,5 @@ function human(color) {
 }
 
 if (getColor(board) !== end && !human(getColor(board))) {
-  move(moveByAI(defaultDepth));
+  move(moveByAI(60));
 }
