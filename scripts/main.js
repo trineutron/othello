@@ -196,14 +196,7 @@ function move(idx) {
       }
     }
     if (getColor(board) !== end && !human(getColor(board))) {
-      let countEmpty = 0;
-      for (let i = 0; i < board.length; i++) {
-        const state = board[i];
-        if (state === empty) {
-          countEmpty++;
-        }
-      }
-      setTimeout(() => move(moveByAI(countEmpty + 1)), 0);
+      setTimeout(() => move(moveByAI()), 0);
     }
   }
 }
@@ -317,7 +310,7 @@ function evalBoard(newBoard) {
   return res;
 }
 
-function moveByAI(countEmpty) {
+function moveByAI() {
   const start = Date.now();
   let movable = listMovable(board);
   let res;
@@ -332,7 +325,7 @@ function moveByAI(countEmpty) {
   movable.sort(function (a, b) {
     return scores[b] - scores[a];
   });
-  for (let depth = 1; depth <= countEmpty; depth++) {
+  for (let depth = 1; ; depth++) {
     let prevRes = res;
     let maxScore = -65000;
     for (let i = 0; i < movable.length; i++) {
@@ -373,12 +366,7 @@ function moveByAI(countEmpty) {
         }
       }
     }
-    if (depth === countEmpty) {
-      console.log("Score:", maxScore);
-    }
   }
-  console.log(countEmpty);
-  return res;
 }
 
 // 前の着手から見た評価値、α以下もしくはβ以上が確定したら枝刈り
@@ -481,5 +469,5 @@ function human(color) {
 }
 
 if (getColor(board) !== end && !human(getColor(board))) {
-  move(moveByAI(60));
+  move(moveByAI());
 }
