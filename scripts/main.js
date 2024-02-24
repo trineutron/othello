@@ -361,9 +361,6 @@ function moveByAI() {
       if (score > maxScore) {
         res = idx;
         maxScore = score;
-        if (maxScore === 64000) {
-          return res;
-        }
       }
     }
   }
