@@ -1,36 +1,40 @@
 body {
-    text-align: center;
+  text-align: center;
 }
 
-p {
-    font-size: 2rem;
+p#info {
+  font-size: 2rem;
+}
+
+div#record {
+  overflow-wrap: break-word;
 }
 
 div#board table {
-    margin: 0 auto;
-    background: black;
+  margin: 0 auto;
+  background: black;
 }
 
 div#board td {
-    background: #008800;
-    height: 3rem;
-    width: 3rem;
-    font-size: 2rem;
-    font-family: monospace;
+  background: #008800;
+  height: 3rem;
+  width: 3rem;
+  font-size: 2rem;
+  font-family: monospace;
 }
 
 div#board .white::before {
-    content: "●";
+  content: "●";
 }
 
 div#board .black::before {
-    content: "●";
+  content: "●";
 }
 
 div#board .white {
-    color: white;
+  color: white;
 }
 
 div#board .black {
-    color: black;
+  color: black;
 }

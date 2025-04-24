@@ -16,6 +16,12 @@ function colorString(color) {
   }
 }
 
+function idxTof5d6(idx) {
+  const x = (idx - 10) % 9;
+  const y = Math.floor((idx - 10) / 9);
+  return String.fromCharCode(97 + x) + (y + 1);
+}
+
 // オセロ盤の表示
 const boardShow = document.createElement("table");
 document.getElementById("board").appendChild(boardShow);
@@ -182,6 +188,7 @@ function move(idx) {
   }
   if (movable) {
     flip(idx);
+    document.getElementById("record").textContent += idxTof5d6(idx);
     document.getElementById("countBlack").textContent = board[92];
     document.getElementById("countWhite").textContent = board[93];
     changeColor(board);
@@ -397,6 +404,11 @@ function search(
       changeColor(newBoard);
     }
     return -search(newBoard, depth, color, -beta, -alpha, timeout, true);
+  }
+  if (movable.length === 1) {
+    const idx = movable[0];
+    const newBoard = afterMove(currentBoard, idx);
+    return -search(newBoard, depth, color, -beta, -alpha, timeout);
   }
   if (depth > 3) {
     let scores = [];
